@@ -20,6 +20,7 @@ def searchforfood(food_type, location):
     names = []
     ratings = []
     prices = []
+    num_ratings = []
     while True:
         new_names = driver.find_elements(By.XPATH, "//div[@class='qBF1Pd fontHeadlineSmall ']")
         new_names = [name.text for name in new_names]
@@ -30,8 +31,12 @@ def searchforfood(food_type, location):
         ratings += new_ratings
 
         new_prices = driver.find_elements(By.XPATH, "//span[contains(@aria-label, 'Price: ')]")
-        new_prices = [price.text for price in new_prices]
+        new_prices = [len(price.text) for price in new_prices]
         prices += new_prices
+
+        new_num_ratings = driver.find_elements(By.CLASS_NAME, "UY7F9")
+        new_num_ratings = [num_rating.text[1:-1] for num_rating in new_num_ratings]
+        num_ratings += new_num_ratings
 
         # print(ratings)
         # print(names)
@@ -44,14 +49,14 @@ def searchforfood(food_type, location):
             break
 
     driver.quit()
-    return names, ratings, prices
+    return names, ratings, prices, num_ratings
     
 def write_to_csv(names, ratings, prices):
     with open('scrape_results.csv', mode='w', newline='', encoding='utf-8') as xcel:
         writer = csv.writer(xcel)
-        writer.writerow(['Name', 'Rating', 'Price'])
+        writer.writerow(['Name', 'Rating', 'Price', 'Num_Ratings'])
         for i in range(len(names)):
-            writer.writerow([names[i], ratings[i], prices[i]])
+            writer.writerow([names[i], ratings[i], prices[i], num_ratings[i]])
 
 if __name__ == '__main__':
     print("Food search")
@@ -60,5 +65,6 @@ if __name__ == '__main__':
     if choice != '1':
         location = input("Enter location: ") 
         if location != "1":
-            names, ratings, prices = searchforfood(choice, location)
+            names, ratings, prices, num_ratings = searchforfood(choice, location)
     write_to_csv(names, ratings, prices)
+
